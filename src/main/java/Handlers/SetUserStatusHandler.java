@@ -37,8 +37,20 @@ public class SetUserStatusHandler implements Handler{
             Boolean result = false;
 
             Status newStatus = mapper.readValue(requestObject.body(), Status.class);
+            if(!newStatus.isValid())
+            {
+                responseObject.status(400);
+                return new SimpleResponse(400, "Bad Request", "Input data is not in allowed ranges");
+            }
             newStatus.timestamp = LocalDateTime.now();
+
             result = StatusRepository.getInstance().setStatus(newStatus, user);
+            if(!result)
+            {
+                responseBody = new SimpleResponse<>(500, "SQL Exception", mapper.writeValueAsString(newStatus));
+                responseObject.status(500);
+                return responseBody;
+            }
 
             responseBody = new SimpleResponse<>(200, "Ok", mapper.writeValueAsString(newStatus));
             responseObject.status(200);

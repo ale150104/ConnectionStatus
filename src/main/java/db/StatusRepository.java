@@ -8,6 +8,7 @@ import DTO.UserDTO;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -75,10 +76,6 @@ public class StatusRepository {
     public boolean setStatus(Status status, UserDTO forUser) throws SQLException {
         Locale.setDefault(Locale.ENGLISH);
 
-        if(!status.isValid())
-        {
-            return false;
-        }
 
         String dateTimeForSQLITE = status.timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
@@ -87,9 +84,11 @@ public class StatusRepository {
 
         try {
             this.mutex.acquire();
-            return connection.createStatement().execute(query);
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            return statement.getUpdateCount() == 1;
         }
-        catch(InterruptedException ex)
+        catch( Exception ex)
         {
             return false;
         }
