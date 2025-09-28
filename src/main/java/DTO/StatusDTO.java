@@ -1,6 +1,7 @@
 package DTO;
 
-public record StatusDTO (
-        UserDTO User,
-        Status status
-){}
+public class StatusDTO {
+    public UserDTO User;
+    public Status status;
+
+}

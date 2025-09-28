@@ -18,17 +18,18 @@ public class StatusMapperFromDB implements RowMapper<StatusDTO> {
         );
 
         Status status = Status.fromDB(
-                (byte)set.getInt("breitenGrad"),
-                set.getInt("laengenGrad"),
+                set.getDouble("breitenGrad"),
+                set.getDouble("laengenGrad"),
                 LocalDateTime.parse(set.getString("timeStamp").replace(" ", "T")),
                 (short) set.getInt("battery")
 
         );
 
+        StatusDTO returnObj = new StatusDTO();
+        returnObj.User = user;
+        returnObj.status = status;
 
-        return new StatusDTO(
-                user,
-                status
-        );
+        return returnObj;
+
     }
 }

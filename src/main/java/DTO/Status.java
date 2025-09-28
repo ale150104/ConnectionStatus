@@ -36,14 +36,14 @@ public class Status{
 
     static Status fromDB(double width, double length, LocalDateTime timeStamp,  short battery)
     {
-        return new Status(width, length, LocalDateTime.now(), battery);
+        return new Status(width, length, timeStamp, battery);
     }
 
 
 
-    static Status forDB(double width, double length,  short battery)
+    static Status forDB(double width, double length, LocalDateTime timeStamp, short battery)
     {
-        return new Status(width, length, LocalDateTime.now(), battery);
+        return new Status(width, length, timeStamp, battery);
     }
 
 }
