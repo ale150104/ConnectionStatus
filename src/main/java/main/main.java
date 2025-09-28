@@ -4,6 +4,7 @@ import DTO.*;
 
 import Handlers.Mediator;
 import com.fasterxml.jackson.databind.*;
+import db.DBConnection;
 import spark.Route;
 import java.sql.*;
 import static spark.Spark.*;
@@ -30,13 +31,36 @@ public class main {
 
         post("/users/user/myStatus", func);
 
+        get("/users/user/myStatus", func);
+
         post("/users/user/login", func);
 
-        //TODO: Richtige Darstellung der Koordinaten
+
+
+        // DOC: Reference System for Geolocation: WGS84
+
+
         // TODO: Endpunkt zur Textuellen Anzeige von Koordinaten (Standort)
 
-        // TODO: Get my Last status
-
         // NICE HAVE TODO: Admin Funktionen
+
+        // TODO: Get my Last status --> Almost done, Beschränken auf letzte Eintrag
+
+        //TODO: Richtige Darstellung der Koordinaten--> DONE
+
+
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            System.out.println("Closing");
+                            DBConnection.getConnection().commit();
+                            DBConnection.getConnection().close();
+                        }
+                        catch (SQLException e) {}
+                    }
+                })
+        );
     }
 }
