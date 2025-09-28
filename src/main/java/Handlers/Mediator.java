@@ -14,7 +14,8 @@ public class Mediator implements HandlerController {
     private List<Handler> handlers = List.of(
             new UserLoginHandler(),
             new GetUserStatiHandler(),
-            new SetUserStatusHandler());
+            new SetUserStatusHandler(),
+            new GetRequestingUsersLastStatus());
 
     @Override
     public SimpleResponse<Object> mediate(Request requestObject, Response responseObject) {
@@ -22,14 +23,9 @@ public class Mediator implements HandlerController {
 
         for(Handler handler: handlers)
         {
-            String uri = requestObject.uri();
-            String route = handler.HandlableRoute();
-
-            if(handler.HandlableRoute().equals(requestObject.uri()))
+            if(handler.HandlableRoute().equals(requestObject.uri()) && handler.HandlableMethod().equals(requestObject.requestMethod().toUpperCase()))
             {
                 return handler.handle(requestObject, responseObject);
-
-
             }
         }
 

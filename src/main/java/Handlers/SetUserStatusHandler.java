@@ -14,12 +14,12 @@ import spark.Response;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SetUserStatusHandler implements Handler{
 
     @Override
     public SimpleResponse handle(Request requestObject, Response responseObject) {
-        SimpleResponse<String> responseBody;
 
         responseObject.type("application/json");
         ObjectMapper mapper = new ObjectMapper();
@@ -29,9 +29,8 @@ public class SetUserStatusHandler implements Handler{
             user = LoginOperations.getInstance().getUserFromSession(requestObject.headers("authorization"));
 
             if (user == null) {
-                responseBody = new SimpleResponse<>(401, "Unauthorized", null);
                 responseObject.status(401);
-                return responseBody;
+                return new SimpleResponse<>(401, "Unauthorized", null);
             }
 
             Boolean result = false;
@@ -40,29 +39,27 @@ public class SetUserStatusHandler implements Handler{
             if(!newStatus.isValid())
             {
                 responseObject.status(400);
-                return new SimpleResponse(400, "Bad Request", "Input data is not in allowed ranges");
+                return new SimpleResponse<String>(400, "Bad Request", "Input data is not in allowed ranges");
             }
             newStatus.timestamp = LocalDateTime.now();
 
             result = StatusRepository.getInstance().setStatus(newStatus, user);
             if(!result)
             {
-                responseBody = new SimpleResponse<>(500, "SQL Exception", mapper.writeValueAsString(newStatus));
                 responseObject.status(500);
-                return responseBody;
+                return new SimpleResponse<Status>(500, "SQL Exception", newStatus);
             }
 
-            responseBody = new SimpleResponse<>(200, "Ok", mapper.writeValueAsString(newStatus));
             responseObject.status(200);
-            return responseBody;
+
+            return new SimpleResponse<Status>(200, "Ok", newStatus);
 
         }
 
         catch(SQLException | JsonProcessingException ex)
         {
-            responseBody = new SimpleResponse<>(500, "Processing Error", null);
             responseObject.status(500);
-            return responseBody;
+            return new SimpleResponse<>(500, "Processing Error", null);
         }
 
     }
@@ -72,5 +69,10 @@ public class SetUserStatusHandler implements Handler{
     @Override
     public String HandlableRoute() {
         return "/users/user/myStatus";
+    }
+
+    @Override
+    public String HandlableMethod() {
+        return WEB_POST_REQUEST;
     }
 }

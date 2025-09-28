@@ -77,4 +77,9 @@ public class UserLoginHandler implements Handler{
     public String HandlableRoute() {
         return "/users/user/login";
     }
+
+    @Override
+    public String HandlableMethod() {
+        return WEB_POST_REQUEST;
+    }
 }

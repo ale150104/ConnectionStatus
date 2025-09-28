@@ -1,6 +1,7 @@
 package Handlers;
 
 import DTO.SimpleResponse;
+import DTO.Status;
 import DTO.StatusDTO;
 import DTO.UserDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class GetUserStatiHandler implements Handler{
     @Override
-    public SimpleResponse handle(Request requestObject, Response responseObject) {
+    public SimpleResponse<Object> handle(Request requestObject, Response responseObject) {
         responseObject.type("application/json");
         ObjectMapper mapper = new ObjectMapper();
 
@@ -33,7 +34,7 @@ public class GetUserStatiHandler implements Handler{
             }
 
 
-            List<StatusDTO> results = new LinkedList<>();
+            List<StatusDTO> results;
 
             results = StatusRepository.getInstance().getStatusOfUsers(user.Id());
             responseBody = new SimpleResponse<List<StatusDTO>>(200, "Ok", results);
@@ -57,6 +58,11 @@ public class GetUserStatiHandler implements Handler{
     @Override
     public String HandlableRoute() {
         return "/users/status";
+    }
+
+    @Override
+    public String HandlableMethod() {
+        return WEB_GET_REQUEST;
     }
 
 }
