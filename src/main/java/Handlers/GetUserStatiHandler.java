@@ -36,7 +36,7 @@ public class GetUserStatiHandler implements Handler{
 
             List<StatusDTO> results;
 
-            results = StatusRepository.getInstance().getStatusOfUsers(user.Id());
+            results = StatusRepository.getInstance().getLastStatusOfUsers(user.Id());
             responseBody = new SimpleResponse<List<StatusDTO>>(200, "Ok", results);
         }
 

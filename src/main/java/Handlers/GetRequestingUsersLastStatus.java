@@ -28,11 +28,11 @@ public class GetRequestingUsersLastStatus implements Handler{
             }
 
 
-            List<StatusDTO> results;
+            StatusDTO result;
 
-            results = StatusRepository.getInstance().getStatusHistoryOfUser(user.Id());
+            result = StatusRepository.getInstance().getLastStatusOfUser(user.Id());
 
-            return new SimpleResponse<>(200, "Ok", results);
+            return new SimpleResponse<>(200, "Ok", result);
         }
 
         catch (SQLException ex)

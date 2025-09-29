@@ -39,7 +39,11 @@ public class Status{
         return new Status(width, length, timeStamp, battery);
     }
 
-
+    @JsonProperty(required = false)
+    public String getTimeStamp()
+    {
+        return this.timestamp.toString();
+    }
 
     static Status forDB(double width, double length, LocalDateTime timeStamp, short battery)
     {

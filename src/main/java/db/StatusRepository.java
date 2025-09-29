@@ -43,7 +43,7 @@ public class StatusRepository {
         return instance;
     }
 
-    public ArrayList<StatusDTO> getStatusHistoryOfUser(Integer user)
+    public StatusDTO getLastStatusOfUser(Integer user)
     {
         String query =
                 "SELECT Users.Id, Users.Name,  Users.LastName, Users.userName, max(Status.timeStamp) as 'timeStamp', Status.laengenGrad, Status.breitenGrad, Status.battery from Status JOIN Users on Status.UserId = %d".formatted(user);
@@ -53,13 +53,16 @@ public class StatusRepository {
             ResultSet set = connection.createStatement().executeQuery(query);
             RowMapper<StatusDTO> mapper = new StatusMapperFromDB();
 
-            ArrayList<StatusDTO> results = new ArrayList<>();
-            while (set.next()) {
+            StatusDTO result;
+            if (set.next()) {
 
-                results.add(mapper.map(set));
+                result = mapper.map(set);
+            }
+            else{
+                throw new SQLException("No Entry");
             }
 
-            return results;
+            return result;
         }
         catch(Exception ex)
         {
@@ -71,7 +74,7 @@ public class StatusRepository {
         }
     }
 
-    public ArrayList<StatusDTO> getStatusOfUsers(Integer forUser) throws SQLException {
+    public ArrayList<StatusDTO> getLastStatusOfUsers(Integer forUser) throws SQLException {
     String query =
             "SELECT Users.Id, Users.Name,  Users.LastName, Users.userName, max(Status.timeStamp) as 'timeStamp', Status.laengenGrad, Status.breitenGrad, Status.battery from (Users JOIN AccessList on AccessList.user1 = %d and AccessList.user2 = Users.Id) JOIN Status on Status.UserId = Users.Id GROUP By Users.Id".formatted(forUser);
 
