@@ -41,7 +41,7 @@ public class SetUserStatusHandler implements Handler{
                 responseObject.status(400);
                 return new SimpleResponse<String>(400, "Bad Request", "Input data is not in allowed ranges");
             }
-            newStatus.timestamp = LocalDateTime.now();
+            newStatus.SetTimeStamp(LocalDateTime.now());
 
             result = StatusRepository.getInstance().setStatus(newStatus, user);
             if(!result)

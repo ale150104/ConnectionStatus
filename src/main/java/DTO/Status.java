@@ -10,11 +10,14 @@ public class Status{
     @JsonProperty
     public double width;
 
+
     @JsonProperty
     public double length;
 
+    private LocalDateTime timestamp;
+
     @JsonIgnore
-    public LocalDateTime timestamp;
+    public String prettyAdress;
 
     @JsonProperty
     public short battery;
@@ -43,6 +46,17 @@ public class Status{
     public String getTimeStamp()
     {
         return this.timestamp.toString();
+    }
+
+    @JsonProperty(required = false, value = "LocationString")
+    public String getPrettyAdress()
+    {
+        return this.prettyAdress;
+    }
+
+    public void SetTimeStamp(LocalDateTime stamp)
+    {
+        this.timestamp = stamp;
     }
 
     static Status forDB(double width, double length, LocalDateTime timeStamp, short battery)

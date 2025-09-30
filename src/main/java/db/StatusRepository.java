@@ -1,9 +1,7 @@
 package db;
 
-import DTO.Status;
-import DTO.StatusDTO;
-import DTO.StatusMapperFromDB;
-import DTO.UserDTO;
+import DTO.*;
+import Helper.GeoLocation;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -56,7 +54,8 @@ public class StatusRepository {
             StatusDTO result;
             if (set.next()) {
 
-                result = mapper.map(set);
+
+            result = mapper.map(set);
             }
             else{
                 throw new SQLException("No Entry");
@@ -108,7 +107,7 @@ public class StatusRepository {
         Locale.setDefault(Locale.ENGLISH);
 
 
-        String dateTimeForSQLITE = status.timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String dateTimeForSQLITE = status.getTimeStamp().formatted(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         String query = "INSERT INTO Status (timeStamp, UserId, laengenGrad, breitenGrad, battery) values('%s', %d, %f, %f, %d)".formatted(dateTimeForSQLITE , forUser.Id(), status.length, status.width, status.battery);
         Locale.setDefault(Locale.GERMAN);
