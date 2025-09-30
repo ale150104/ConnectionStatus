@@ -1,8 +1,10 @@
 package Handlers;
 
+import DTO.GeoAdress;
 import DTO.SimpleResponse;
 import DTO.StatusDTO;
 import DTO.UserDTO;
+import Helper.GeoLocation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import db.LoginOperations;
 import db.StatusRepository;
@@ -31,6 +33,18 @@ public class GetRequestingUsersLastStatus implements Handler{
             StatusDTO result;
 
             result = StatusRepository.getInstance().getLastStatusOfUser(user.Id());
+
+
+            try{
+                GeoAdress adress = GeoLocation.getInstance().getLocation(result.status.length, result.status.width);
+
+                result.status.prettyAdress = String.format("%S, %s, %s, %s %s", adress.countryCode, adress.city, adress.postalCode, adress.street, adress.houseNumber);
+            }
+            catch(Exception ex)
+            {
+                result.status.prettyAdress = "Not available";
+            }
+
 
             return new SimpleResponse<>(200, "Ok", result);
         }

@@ -1,9 +1,7 @@
 package Handlers;
 
-import DTO.SimpleResponse;
-import DTO.Status;
-import DTO.StatusDTO;
-import DTO.UserDTO;
+import DTO.*;
+import Helper.GeoLocation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import db.LoginOperations;
@@ -37,6 +35,21 @@ public class GetUserStatiHandler implements Handler{
             List<StatusDTO> results;
 
             results = StatusRepository.getInstance().getLastStatusOfUsers(user.Id());
+
+            for(StatusDTO result: results)
+            {
+                try{
+                    GeoAdress adress = GeoLocation.getInstance().getLocation(result.status.length, result.status.width);
+
+                    result.status.prettyAdress = String.format("%S, %s, %s, %s %s", adress.countryCode, adress.city, adress.postalCode, adress.street, adress.houseNumber);
+                }
+                catch(Exception ex)
+                {
+                    result.status.prettyAdress = "Not available";
+                }
+            }
+
+
             responseBody = new SimpleResponse<List<StatusDTO>>(200, "Ok", results);
         }
 
