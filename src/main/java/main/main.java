@@ -37,14 +37,13 @@ public class main {
 
 
 
-        // DOC: Reference System for Geolocation: WGS84
-
-
-        // TODO: Endpunkt zur Textuellen Anzeige von Koordinaten (Standort)
+        // DOC: Reference System for Geolocation: Just longitude and latitude referring to WGS84
 
         // NICE HAVE TODO: Admin Funktionen
 
-        // TODO: Get my Last status --> Almost done, Beschränken auf letzte Eintrag
+        // TODO: Endpunkt zur Textuellen Anzeige von Koordinaten (Standort) --> DONE
+
+        // TODO: Get my Last status --> DONE
 
         //TODO: Richtige Darstellung der Koordinaten--> DONE
 
