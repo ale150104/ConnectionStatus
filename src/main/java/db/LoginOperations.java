@@ -116,24 +116,24 @@ public class LoginOperations
             return null;
         }
 
-        if(!BCrypt.checkpw(password, user.password()))
+        if(!BCrypt.checkpw(password, user.password))
         {
             return null;
         }
 
         String token = Jwts
                 .builder()
-                .subject(user.name())
+                .subject(user.name)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + (365L * 24 * 60 * 60 * 1000)))
                 .signWith(privateKey)
                 .compact();
 
-        System.out.println("INSERT INTO Login VALUES('%1$s', %2$d) ON CONFLICT(UserId) DO UPDATE SET token = '%1$s'".formatted(token, user.Id()));
+        System.out.println("INSERT INTO Login VALUES('%1$s', %2$d) ON CONFLICT(UserId) DO UPDATE SET token = '%1$s'".formatted(token, user.Id));
         int success;
         try{
             this.mutex.acquire();
-            success = connection.createStatement().executeUpdate("INSERT INTO Login VALUES('%1$s', %2$d) ON CONFLICT(UserId) DO UPDATE SET token = '%1$s'".formatted(token, user.Id()));
+            success = connection.createStatement().executeUpdate("INSERT INTO Login VALUES('%1$s', %2$d) ON CONFLICT(UserId) DO UPDATE SET token = '%1$s'".formatted(token, user.Id));
             return (success == 1)? token : null;
         }
 

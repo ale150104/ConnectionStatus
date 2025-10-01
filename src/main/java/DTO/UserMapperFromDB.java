@@ -15,7 +15,7 @@ public class UserMapperFromDB implements RowMapper<User> {
                 set.getString("LastName"),
                 set.getString("userName"),
                 set.getString("Password"),
-                set.getBoolean("isAdmin")
+                set.getInt("isAdmin") == 1
                 );
     }
 }

@@ -18,7 +18,7 @@ public record UserDTO (
         boolean isAdmin
 ){
     public static UserDTO from(User user){
-        return new UserDTO(user.Id(), user.name(), user.Lastname(), user.eMail(), user.isAdmin());
+        return new UserDTO(user.Id, user.name, user.Lastname, user.eMail, user.isAdmin);
     }
 
 }

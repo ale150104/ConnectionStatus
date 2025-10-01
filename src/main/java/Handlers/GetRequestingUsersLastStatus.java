@@ -18,7 +18,6 @@ public class GetRequestingUsersLastStatus implements Handler{
     @Override
     public SimpleResponse<Object> handle(Request requestObject, Response responseObject) {
         responseObject.type("application/json");
-        ObjectMapper mapper = new ObjectMapper();
 
         try {
             UserDTO user = LoginOperations.getInstance().getUserFromSession(requestObject.headers("authorization"));

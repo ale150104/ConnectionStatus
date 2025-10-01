@@ -61,8 +61,8 @@ public class UserRepository implements Repository<User, Integer> {
     @Override
     public boolean add(User dataSet) {
 
-    String hashedPassword = BCrypt.hashpw(dataSet.password(), BCrypt.gensalt(12));
-    String query = "INSERT INTO Users (Name, LastName, isAdmin, Password, userName) values (%s, %s, %d, %s, %s)".formatted(dataSet.name(), dataSet.Lastname(), (dataSet.isAdmin())? 1 : 0, hashedPassword, dataSet.eMail());
+    String hashedPassword = BCrypt.hashpw(dataSet.password, BCrypt.gensalt(12));
+    String query = "INSERT INTO Users (Name, LastName, isAdmin, Password, userName) values (%s, %s, %d, %s, %s)".formatted(dataSet.name, dataSet.Lastname, (dataSet.isAdmin)? 1 : 0, hashedPassword, dataSet.eMail);
     boolean result;
     try{
         this.mutex.acquire();
