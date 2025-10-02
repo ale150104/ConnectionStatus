@@ -1,9 +1,11 @@
 package db;
 
 import DTO.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import main.main;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,7 +16,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.concurrent.Semaphore;
 
-public class UserRepository implements Repository<User, Integer> {
+public class UserRepository {
 
     private static final String url = "jdbc:sqlite:%s".formatted(main.class.getResource("/db/sqlite/playground.sqlite"));
 
@@ -48,39 +50,81 @@ public class UserRepository implements Repository<User, Integer> {
     }
 
 
-    @Override
     public User getSingleDataSet(Integer identifier) {
         return null;
     }
 
-    @Override
     public LinkedList<User> getAllDataSets() {
         return null;
     }
 
-    @Override
-    public boolean add(User dataSet) {
+    public UserDTO add(User dataSet) throws FileAlreadyExistsException {
 
     String hashedPassword = BCrypt.hashpw(dataSet.password, BCrypt.gensalt(12));
-    String query = "INSERT INTO Users (Name, LastName, isAdmin, Password, userName) values (%s, %s, %d, %s, %s)".formatted(dataSet.name, dataSet.Lastname, (dataSet.isAdmin)? 1 : 0, hashedPassword, dataSet.eMail);
+    String query = "INSERT INTO Users (Name, LastName, isAdmin, Password, userName) values ('%s', '%s', %d, '%s', '%s')".formatted(dataSet.name, dataSet.Lastname, (dataSet.isAdmin)? 1 : 0, hashedPassword, dataSet.userName);
     boolean result;
     try{
         this.mutex.acquire();
         result =  connection.createStatement().execute(query);
     }
-    catch(SQLException | InterruptedException ex)
+
+    catch(InterruptedException ex)
     {
-        result = false;
+        return null;
+    }
+    catch(SQLException ex)
+    {
+        throw new FileAlreadyExistsException("");
     }
     finally{
         this.mutex.release();
     }
 
-    return result;
+    return UserDTO.from(this.getUser(dataSet.userName));
 
     }
 
-    @Override
+    public User getUser(String userName)
+    {
+        String query = "SELECT * FROM Users where Users.userName = '%s'".formatted(userName);
+        RowMapper<User> mapper = new UserMapperFromDB();
+        try{
+            this.mutex.acquire();
+            ResultSet set = connection.createStatement().executeQuery(query);
+            if(set.next())
+            {
+                return mapper.map(set);
+            }
+
+            return null;
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
+        finally{
+            this.mutex.release();
+        }
+    }
+
+
+    public boolean changePassword(User user, String newPW)
+    {
+        String query = "update Users set password = '%s' where Users.Id = %d".formatted(newPW, user.Id);
+        try{
+            this.mutex.acquire();
+            boolean result  = connection.createStatement().execute(query);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            return false;
+        }
+        finally{
+            this.mutex.release();
+        }
+    }
+
     public boolean delete(Integer identifier) {
 
         String query1 = "DELETE from AccessList where AccessList.user2 = %1$d".formatted(identifier);

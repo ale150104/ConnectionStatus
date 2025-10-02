@@ -37,6 +37,8 @@ public class main {
 
         post("/users/user/new", func);
 
+        post("/users/user/password", func);
+
 
 
         // DOC: Reference System for Geolocation: Just longitude and latitude referring to WGS84

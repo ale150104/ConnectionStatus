@@ -10,6 +10,8 @@ import db.UserRepository;
 import spark.Request;
 import spark.Response;
 
+import java.io.File;
+import java.nio.file.FileAlreadyExistsException;
 import java.sql.SQLException;
 
 public class AddNewUserHandler implements Handler{
@@ -34,13 +36,20 @@ public class AddNewUserHandler implements Handler{
 
 
             User usr = mapper.readValue(requestObject.body(), User.class);
-            boolean result = UserRepository.getInstance().add(usr);
+            UserDTO result;
+            try{
+                result = UserRepository.getInstance().add(usr);
+            }
+            catch(FileAlreadyExistsException ex)
+            {
+                return new SimpleResponse<>(409, "Conflict", null);
+            }
 
-            if(!result)
+            if(result == null)
             {
                 return new SimpleResponse<>(500, "Internal Server Error", null);
             }
-            return new SimpleResponse<>(200, "Ok", usr);
+            return new SimpleResponse<>(200, "Ok", result);
 
         }
         catch(JsonProcessingException ex)
