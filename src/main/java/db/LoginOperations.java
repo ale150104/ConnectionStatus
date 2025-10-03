@@ -107,7 +107,25 @@ public class LoginOperations
         return instance;
     }
 
+    public boolean logoutUser(int Id)
+    {
+        String query = "Delete from Login where Login.UserId=%d".formatted(Id);
+        try{
+            ResultSet set;
+            this.mutex.acquire();
+            Statement statement = this.connection.createStatement();
+            boolean result = statement.execute(query);
 
+            return statement.getUpdateCount() == 1;
+        }
+        catch(SQLException | InterruptedException ex)
+        {
+            return false;
+        }
+        finally {
+            this.mutex.release();
+        }
+    }
 
     public String generateToken(String userName, String password) throws SQLException {
         User user = userInDB(userName);
