@@ -6,13 +6,11 @@ import main.main;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.nio.file.FileAlreadyExistsException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Semaphore;
 
@@ -108,13 +106,39 @@ public class UserRepository {
     }
 
 
+    public User getUser(int Id)
+    {
+        String query = "SELECT * FROM Users where Users.Id = '%d'".formatted(Id);
+        RowMapper<User> mapper = new UserMapperFromDB();
+        try{
+            this.mutex.acquire();
+            ResultSet set = connection.createStatement().executeQuery(query);
+            if(set.next())
+            {
+                return mapper.map(set);
+            }
+
+            return null;
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
+        finally{
+            this.mutex.release();
+        }
+    }
+
+
     public boolean changePassword(User user, String newPW)
     {
         String query = "update Users set password = '%s' where Users.Id = %d".formatted(newPW, user.Id);
         try{
             this.mutex.acquire();
-            boolean result  = connection.createStatement().execute(query);
-            return result;
+            Statement statement = connection.createStatement();
+            statement.execute(query);
+            return statement.getUpdateCount() == 1;
+
         }
         catch(Exception ex)
         {
@@ -125,10 +149,12 @@ public class UserRepository {
         }
     }
 
-    public boolean delete(Integer identifier) {
 
+    public UserDTO delete(Integer identifier) {
+
+        UserDTO userToDelete = UserDTO.from(this.getUser(identifier));
         String query1 = "DELETE from AccessList where AccessList.user2 = %1$d".formatted(identifier);
-        String query2 = "DELETE from DTO.Status where DTO.Status.UserId = %1$d".formatted(identifier);
+        String query2 = "DELETE from Status where Status.UserId = %1$d".formatted(identifier);
         String query3 = "DELETE from Users where Users.Id = %1$d".formatted(identifier);
 
         boolean res1 = false;
@@ -137,17 +163,60 @@ public class UserRepository {
 
         try{
             this.mutex.acquire();
-             res1 = connection.createStatement().execute(query1);
-             res2 = connection.createStatement().execute(query2);
-             res3 = connection.createStatement().execute(query3);
+            Statement statement1 = connection.createStatement();
+            statement1.execute(query1);
+
+            Statement statement2 = connection.createStatement();
+            statement2.execute(query2);
+
+            Statement statement3 = connection.createStatement();
+            statement3.execute(query3);
+             res1 = statement1.getUpdateCount() >= 0;
+             res2 = statement2.getUpdateCount() >= 0;
+             res3 = statement3.getUpdateCount() >= 0;
+
+             if(!(res1 && res2 && res3))
+             {
+                 //TODO: Rollback
+                return null;
+             }
+
+             return userToDelete;
         }
         catch(SQLException | InterruptedException ex )
-        {}
+        {
+            return null;
+        }
         finally{
             this.mutex.release();
         }
 
-        return !(res1 | res2 | res3);
+    }
+
+
+    public List<UserDTO> getAllUsers(){
+        String query = "Select * from Users";
+
+        try{
+            this.mutex.acquire();
+            ResultSet set =  connection.createStatement().executeQuery(query);
+            RowMapper<User> mapper = new UserMapperFromDB();
+            LinkedList<UserDTO> userResults = new LinkedList<>();
+            while(set.next())
+            {
+                User user = mapper.map(set);
+                userResults.add(UserDTO.from(user));
+            }
+
+            return userResults;
+        }
+        catch(Exception ex )
+        {
+            return null;
+        }
+        finally{
+            this.mutex.release();
+        }
     }
 
 }
