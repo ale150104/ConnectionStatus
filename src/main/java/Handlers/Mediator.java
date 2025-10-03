@@ -17,7 +17,11 @@ public class Mediator implements HandlerController {
             new SetUserStatusHandler(),
             new GetRequestingUsersLastStatus(),
             new AddNewUserHandler(),
-            new changePasswordHandler());
+            new changePasswordHandler(),
+            new DeleteUserHandler(),
+            new GetAllUsersHandler(),
+            new AddVisibilityHandler(),
+            new DeleteUserVisibilityHandler());
 
     @Override
     public SimpleResponse<Object> mediate(Request requestObject, Response responseObject) {

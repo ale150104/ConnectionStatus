@@ -18,7 +18,9 @@ public class main {
 
             ObjectMapper mapper = new ObjectMapper();
             try {
-                return mapper.writeValueAsString(mediator.mediate(request, response));
+                SimpleResponse<Object> handlerResponse = mediator.mediate(request, response);
+                response.status(handlerResponse.status());
+                return mapper.writeValueAsString(handlerResponse);
             }
             catch(Exception ex)
             {
@@ -38,6 +40,14 @@ public class main {
         post("/users/user/new", func);
 
         post("/users/user/password", func);
+
+        delete("/users/user", func);
+
+        get("/users", func);
+
+        post("/users/visibility", func);
+
+        delete("/users/visibility", func);
 
 
 
