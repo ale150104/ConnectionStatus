@@ -2,6 +2,8 @@ package Handlers;
 
 import DTO.*;
 import Helper.GeoLocation;
+import Helper.HasPasswordAtLeast8CharsAnd4DifferentTypesOfChars;
+import Helper.IIsPasswordSecure;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import db.LoginOperations;
@@ -36,6 +38,13 @@ public class AddNewUserHandler implements Handler{
 
 
             User usr = mapper.readValue(requestObject.body(), User.class);
+
+            IIsPasswordSecure passwordChecker = new HasPasswordAtLeast8CharsAnd4DifferentTypesOfChars();
+            if(!passwordChecker.isValid(usr.password))
+            {
+                return new SimpleResponse<>(400, "Bad Request", "Password not matching. %s".formatted(passwordChecker.getPWGuideline()));
+            }
+
             UserDTO result;
             try{
                 result = UserRepository.getInstance().add(usr);

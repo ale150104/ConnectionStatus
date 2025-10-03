@@ -4,6 +4,8 @@ import DTO.PasswordChangingDTO;
 import DTO.SimpleResponse;
 import DTO.User;
 import DTO.UserDTO;
+import Helper.HasPasswordAtLeast8CharsAnd4DifferentTypesOfChars;
+import Helper.IIsPasswordSecure;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import db.LoginOperations;
@@ -31,6 +33,14 @@ public class changePasswordHandler implements Handler{
 
 
             PasswordChangingDTO passwordChangeObject = mapper.readValue(requestObject.body(), PasswordChangingDTO.class);
+
+            IIsPasswordSecure passwordChecker = new HasPasswordAtLeast8CharsAnd4DifferentTypesOfChars();
+            if(!passwordChecker.isValid(passwordChangeObject.newPassword))
+            {
+                return new SimpleResponse<>(400, "Bad Request", "Password not matching. %s".formatted(passwordChecker.getPWGuideline()));
+            }
+
+
             User userWithPassword = UserRepository.getInstance().getUser(user.userName());
             if(!BCrypt.checkpw(passwordChangeObject.oldPassword, userWithPassword.password))
             {
@@ -44,7 +54,8 @@ public class changePasswordHandler implements Handler{
                 return new SimpleResponse<>(500, "Internal Server Error", null);
             }
 
-            return new SimpleResponse<>(200, "Ok", null);
+            LoginOperations.getInstance().logoutUser(user.Id());
+            return new SimpleResponse<>(200, "Ok", "Additional Info, you have been logged out!");
 
         }
         catch(JsonProcessingException ex)
