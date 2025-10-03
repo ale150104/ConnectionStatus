@@ -8,7 +8,7 @@ public interface Repository<T, K> {
 
     public LinkedList<T> getAllDataSets();
 
-    public boolean add(T dataSet);
+    public T add(T dataSet);
 
     public boolean delete(K identifier);
 }
